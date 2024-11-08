@@ -1,10 +1,12 @@
 
 object farmaceutico{}
 object farmacia{
-	const property clientes = []
-	const property importeSolvencia = 300000
+
+	var property importeSolvencia = 300000
 	const property medicamentos = []
-	const property prepagasAceptadas = [osde,pami]
+	const property prepagasAceptadas = #{}
+	const property nuevaOferta = true
+	const property clientes = #{}
 
 	method agregarCliente(cliente){
 		clientes.add(cliente)
@@ -21,7 +23,6 @@ object farmacia{
 	method borrarMedicamento(medicamento){
 		medicamentos.remove(medicamento)
 	}
-
 
 	method clienteSolvente(cliente){
 		return ((cliente.dinero() > importeSolvencia) || (cliente.puntajeComercial() > 500))
@@ -74,7 +75,6 @@ object farmacia{
 		return medicamentos.filter({medicamento => ((medicamento.oferta()) && (medicamento.ventaLibre()))})
 	}
 
-
 	method todosLosMedicamentosGenericosSonBaratos(){
 		return self.medicamentosGenericos().all({medicamento => medicamento.barato()})
 	}
@@ -99,6 +99,7 @@ object farmacia{
 		} else self.error("No tenemos ese medicamento actualmente")
 	
 	}
+
 	method medicamentoEsBarato(medicamento){
 				if (medicamentos.contains(medicamento)){
 			return medicamento.barato()
@@ -116,6 +117,10 @@ object farmacia{
 		medicamento.nuevoPrecio(importe)
 	}
 
+	method aceptarPrepaga(prepaga){
+		prepagasAceptadas.add(prepaga)
+	}
+
 	method prepagaAceptada(prepaga){
 		return prepagasAceptadas.contains(prepaga)
 
@@ -128,24 +133,79 @@ object farmacia{
 	method aceptaPrepagaCliente(cliente){
 		return self.prepagasAceptadas().contains(cliente.prepagaObraSocial())
 	}
+
+	method prepagaClienteConveniente(cliente){
+		return ((cliente.prepagaObraSocial().descuento()) >= 0.4) && (prepagasAceptadas.contains(cliente.prepagaObraSocial()))
+	}
+
+	method descuentoPrepagaObraSocial(cliente, medicamento){
+		if (self.prepagaClienteConveniente(cliente)){
+			return (cliente.prepagaObraSocial().calculoDescuento(medicamento))
+		}else return 0
+	}
+
+	//No está en los cálculos, está comentado. Pero está.
+	method calculoNuevaOferta(cliente, medicamento){
+		if (nuevaOferta){
+			return medicamento.precio() * 0.13
+		}else return 0
+	}
+
+	method calculoDeVentaDeMedicamento(cliente, medicamento){
+		return medicamento.precioVenta(cliente) - self.descuentoPrepagaObraSocial(cliente, medicamento) //- self.calculoNuevaOferta(cliente, medicamento)
+	}
+
+	method calculoDescuentoDeMedicamento(cliente, medicamento){
+		return medicamento.sumaDescuentos(cliente) + self.descuentoPrepagaObraSocial(cliente, medicamento)// + self.calculoNuevaOferta(cliente, medicamento)
+	}
+
+	method aceptarTodasLasPrepagasDeLosClientes(){
+		clientes.forEach({cliente => self.aceptarPrepaga(cliente.prepagaObraSocial())})
+		
+	}
+
 }
 
 class Medicamento{
-	var property nombre = 0
-	var property generico = false
-	var property precio = 0
+	var property nombre
+	var property generico
+	var property precio
 	var property oferta
-	var property barato = true
-	var property descuento = false
-	var property ventaLibre = true
+	var property descuento
+	var property ventaLibre
 
-	method esBarato(){
-		return barato
+	method barato(){
+		return true
 	}
-	
+
+	method condicionDeVenta(cliente){
+		if (cliente.className() == "farmacia.Cheto"){
+			return (not cliente.aceptaOfertas() && (not oferta))
+		}else return true
+	}
+
+	method descuento10(cliente){
+		if (cliente.tieneMedioElectronico()){
+			return precio * 0.1
+		}else return 0
+	}
+
+	method sumaDescuentos(cliente){
+		return self.descuento10(cliente)
+	}
+
+	method precioVenta(cliente){
+		if (self.condicionDeVenta(cliente)){
+			return precio - self.sumaDescuentos(cliente)
+		}else self.error("No se le puede vender")
+		
+	}
+
 	method nuevoPrecio(importe){
 		precio = importe
 	}
+/*
+
 
 	method puedeVenderseleA(cliente){
 		if (cliente.aceptaOfertas() && oferta){
@@ -167,61 +227,94 @@ class Medicamento{
 			self.ventaConOSinDescuento(cliente)
 		} //else self.error ("No puede vendersele a cliente")
 	}
+	*/
 }
 
 class Potente inherits Medicamento(
+	
 	generico = false,
-	barato = false,
+	oferta = false,
 	descuento = false,
-	ventaLibre = false
+	ventaLibre = false){
+	
+	override method barato(){
+		return false
+	}
 
-){
-	override method puedeVenderseleA(cliente){
+	method condicionDeVenta2(cliente){
 		return farmacia.clienteSolvente(cliente)
 	}
 
+	override method sumaDescuentos(cliente){
+		return super(cliente) * 0
+	}
+
+	override method precioVenta(cliente){
+		if (self.condicionDeVenta(cliente) && self.condicionDeVenta2(cliente)){
+			return precio - self.sumaDescuentos(cliente)
+		}else self.error("No se le puede vender")
+		
+	}
+
+/*
+	override method puedeVenderseleA(cliente){
+		return farmacia.clienteSolvente(cliente)
+	}
+	*/
 
 }
 class Comun inherits Medicamento(
-	ventaLibre = false
-	){
-	override method esBarato(){
+	//generico se declara en al const
+	oferta = true,
+	descuento = true,
+	ventaLibre = false){
+
+	override method barato(){
 		return generico
 	}
 
-	override method ventaConDescuento(cliente){ //VER ESTO POR LO DEL DESCUENTO
+	method descuento20generico(cliente){
 		if ((farmacia.clienteModerno(cliente)) && (not farmacia.clienteSolvente(cliente) )){
-			precio *= 0.8
-		}
+			return precio * 0.2
+		} else return 0
 	}
+
+	override method sumaDescuentos(cliente){
+		return super(cliente) + self.descuento20generico(cliente)
+	}
+
 }
 
 class Libre inherits Medicamento(
-	ventaLibre = true
-){
+	//generico se declara en al const
+	oferta = false,
+	descuento = true,
+	ventaLibre = true){
 		
-	override method esBarato(){
+	override method barato(){
 		return precio < 50000
 	}
 
-	override method ventaConDescuento(cliente){ //VER ESTO POR LO DEL DESCUENTO
-		if (precio <=25000 ){
-			precio *= 0.85
-		}
+	method descuento15precio(cliente){
+		if (precio >= 25000){
+			return precio * 0.15
+		} else return 0
 	}
 
+	override method sumaDescuentos(cliente){
+		return super(cliente) + self.descuento15precio(cliente)
+	}
 	
 }
 
 class Cliente{
 
-	var property nombre = jorge
-	var property edad = 23
-	var property dinero = 0
+	var property nombre
+	var property edad
 	var property mediosDePago = []
 	var property prepagaObraSocial
-	var property puntajeComercial
-	var property aceptaOfertas = false
+	var property aceptaOfertas
+	var property aceptaGenericos
 
 	method agregarMedioDePago(medio){
 		mediosDePago.add(medio)
@@ -231,79 +324,91 @@ class Cliente{
 		mediosDePago.remove(medio)
 	}
 
-	method dineroDisponible(){
-		dinero = mediosDePago.sum({medio => medio.importe()})
+	method dinero(){
+		return mediosDePago.sum({medio => medio.importe()})
 	}
 
 	method tieneMedioElectronico(){
 		return mediosDePago.any({medio => medio.electronico()})
 	}
+
+	method puntajeComercial(){
+	}
 }
 
 class Cheto inherits Cliente(
-	puntajeComercial = 1000,
-	aceptaOfertas = false
+	aceptaOfertas = false,
+	aceptaGenericos = false){
 
-){
+	override method puntajeComercial(){
+		return 1000
+	}
 
 }
 class Rustico inherits Cliente(
-	puntajeComercial = 10,
-	aceptaOfertas = true
-){
-	
+	aceptaOfertas = true,
+	aceptaGenericos = true){
 
+	override method puntajeComercial(){
+		return 10
+	}
+	
 }
 class JubiladoComun inherits Cliente(
-	puntajeComercial = 30,
-	aceptaOfertas = false
-){
+	aceptaOfertas = true,
+	aceptaGenericos = true){
+	
+	override method puntajeComercial(){
+		return 30
+	}
 	//Atento con las ofertas
 
 }
 
-class JubiladoMinima inherits JubiladoComun(
-	puntajeComercial = (30 / 2) + 5
+class JubiladoMinima inherits JubiladoComun(){
 
-){
+	override method puntajeComercial(){
+		return (super() / 2) + 5
+	} 
+
 	method cambiaOferta(){
-		return (puntajeComercial < 25)
+		return (self.puntajeComercial() < 25)
 
 	}
 }
 
 
+class Prepaga{
+	var property descuento
 
-class PrepagaObraSocial{
-	var property esConveniente = false
-	var property descuento = 0
+	method calculoDescuento(medicamento){
+		if (not medicamento.ventaLibre()){
+			return medicamento.precio() * descuento
+		}else return 0
 
-	method esConvenieteParaFarmacia(){
-		esConveniente = (descuento >= 40)
 	}
 
+}
+
+class ObraSocial inherits Prepaga{
 
 }
-object osde inherits PrepagaObraSocial(
-	descuento = 0.4
-){
-}
-object pami inherits PrepagaObraSocial(){
-}
+object omint inherits Prepaga(
+	descuento = 0.42){}
+object osde inherits Prepaga(
+	descuento = 0.4){}
+object pami inherits ObraSocial(
+	descuento = 0.3){}
+
+
 class MedioDePago{
-	var property electronico = false
+	var property electronico
 	var property importe
 }
-
-class Efectivo inherits MedioDePago(){
-
-}
+class Efectivo inherits MedioDePago(
+	electronico = false){}
 
 class Debito inherits MedioDePago(
-	electronico = true
-){
-
-}
+	electronico = true){}
 class Credito inherits MedioDePago(
-	electronico = true
-){}
+	electronico = true){}

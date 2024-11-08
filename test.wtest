@@ -2,75 +2,89 @@ import farmacia.*
 
 describe " Parcial - Farmacia"{
 
-  const efectivo = new Efectivo(importe = 10000)
-  const debito = new Debito(importe = 400000)
-  const credito = new Credito(importe = 500000)
-
-  const efectivo1 = new Efectivo(importe = 1000)
-  const debito1 = new Debito(importe = 40000)
-  const credito1 = new Credito(importe = 50000)
-
-  const efectivo2 = new Efectivo(importe = 100000)
-  const debito2 = new Debito(importe = 4000000)
-  const credito2 = new Credito(importe = 5000000)
-
+  //clienteCheto
   const efectivo3 = new Efectivo(importe = 1000000)
   const debito3 = new Debito(importe = 40000000)
   const credito3 = new Credito(importe = 50000000)
 
-  const clienteCheto = new Cheto(nombre = "Jacinto", prepagaObraSocial = osde, edad = 30,mediosDePago=[efectivo3,debito3,credito3])
-  const clienteRustico = new Rustico(nombre = "Pipistrelo",prepagaObraSocial = osde,edad = 35,mediosDePago=[efectivo2,debito2,credito2])
-  const clienteJubiladoComun = new JubiladoComun(nombre = "Roque Fort", prepagaObraSocial = pami ,edad = 70,mediosDePago=[efectivo])
+  //clienteCheto2
+  const efectivo4 = new Efectivo(importe = 100000)
+  const debito4 = new Debito(importe = 400000)
+  const credito4 = new Credito(importe = 500000)
+  
+  //clienteJubiladoComun
+  const efectivo = new Efectivo(importe = 300000)
+  const credito = new Credito(importe = 50000)
+  
+  //clienteJubiladoMinima
+  const efectivo1 = new Efectivo(importe = 250000)
+
+  //clienteRustico
+  const efectivo2 = new Efectivo(importe = 500000)
+
+
+
+
+  const clienteCheto = new Cheto(nombre = "Jacinto", prepagaObraSocial = osde, edad = 30, mediosDePago=[efectivo3,debito3,credito3])
+  const clienteCheto2 = new Cheto(nombre = "Paparulo", prepagaObraSocial = osde, edad = 36, mediosDePago=[efectivo4,debito4,credito4])
+  const clienteRustico = new Rustico(nombre = "Pipistrelo", prepagaObraSocial = omint, edad = 35, mediosDePago=[efectivo2])
+  const clienteJubiladoComun = new JubiladoComun(nombre = "Roque Fort", prepagaObraSocial = pami ,edad = 70,mediosDePago=[efectivo,credito])
   const clienteJubiladoMinima = new JubiladoMinima(nombre = "Chinchu Lancha",prepagaObraSocial = pami , edad = 72,mediosDePago=[efectivo1])
 
-  const medicamentoPotente = new Potente(precio = 100000, nombre = "Pastillita", oferta = true)
-  const medicamentoComun = new Comun(precio = 50000, nombre = "Cosito", oferta = false)
-  const medicamentoLibre = new Libre(precio = 10000, nombre = "DelCoso", oferta = true , generico = true)
+  const medicamentoPotente = new Potente(precio = 100000, nombre = "Pastillita")
+  const medicamentoComun = new Comun(precio = 50000, generico = false, nombre = "Cosito", oferta = false)
+  const medicamentoComun2 = new Comun(precio = 60000, generico = true, nombre = "CositoForte", oferta = true)
+  const medicamentoLibre = new Libre(precio = 25000, nombre = "DelCoso", oferta = true , generico = true)
 
   method initialize(){
 
     farmacia.agregarCliente(clienteCheto)
+    farmacia.agregarCliente(clienteCheto2)
     farmacia.agregarCliente(clienteRustico)
     farmacia.agregarCliente(clienteJubiladoComun)
     farmacia.agregarCliente(clienteJubiladoMinima)
     
     farmacia.agregarMedicamento(medicamentoPotente)
     farmacia.agregarMedicamento(medicamentoComun)
+    farmacia.agregarMedicamento(medicamentoComun2)
     farmacia.agregarMedicamento(medicamentoLibre)
+
+    farmacia.aceptarPrepaga(osde)
+    farmacia.aceptarPrepaga(pami)   
 
   }
 
+  //////////------FARMACIA------//////////
   test "1.a.Obtener todos los clientes"{
-    assert.equals([clienteCheto,clienteRustico,clienteJubiladoComun,clienteJubiladoMinima], farmacia.imprimirClientes())
+    assert.equals([clienteCheto, clienteCheto2, clienteRustico, clienteJubiladoComun, clienteJubiladoMinima], farmacia.imprimirClientes())
 
   }
 
   test "1.b.Obtener todos los clientes con puntaje comercial mayor a 25"{
-    assert.equals([clienteCheto,clienteJubiladoComun],farmacia.obtenerClientesSegunPuntaje(25))
+    assert.equals([clienteCheto, clienteCheto2, clienteJubiladoComun],farmacia.obtenerClientesSegunPuntaje(25))
 )
 
   }
   test "1.c. Promedio de edad de los clientes modernos"{
-    assert.equals(32.5,farmacia.obtenerPromedioEdad())
+    assert.equals(33,farmacia.obtenerPromedioEdad())
 
   }
   test "1.d.Obtener sólo los clientes modernos que sean además solventes"{
-    assert.equals([clienteCheto],farmacia.listarMordenosYSolventes())
+    assert.equals([clienteCheto, clienteCheto2],farmacia.listarMordenosYSolventes())
   }
   test "1.e. ¿Cuántos clientes modernos tiene la farmacia?"{
-    assert.equals(2,farmacia.listaClientesModernos().size())  
-
+    assert.equals(2,farmacia.listaClientesModernos().size())
 
   }
   test "1.f¿Cuáles de los clientes son solventes y modernos? Pero ahora queremos sus nombres."{
-    assert.equals(["Jacinto"], farmacia.nombresDeNodernosYSolventes())
+    assert.equals(["Jacinto","Paparulo"], farmacia.nombresDeNodernosYSolventes())
   }
   test "1.g.Consultar nombres de todos remedios (productos)"{
-    assert.equals([medicamentoPotente, medicamentoComun, medicamentoLibre],farmacia.medicamentos())
+    assert.equals([medicamentoPotente, medicamentoComun, medicamentoComun2, medicamentoLibre],farmacia.medicamentos())
 
   }
-  test "1.h.h. Obtener todos los medicamentos genéricos"{
-    assert.equals([medicamentoLibre],farmacia.medicamentosGenericos())
+  test "1.h. Obtener todos los medicamentos genéricos"{
+    assert.equals([medicamentoComun2, medicamentoLibre],farmacia.medicamentosGenericos())
   }
   test "1.i.Obtener todos los medicamentos de venta libre y en oferta"{
     assert.equals([medicamentoLibre], farmacia.medicamentosEnOfertaYVentaLibre())
@@ -79,42 +93,47 @@ describe " Parcial - Farmacia"{
     assert.that(farmacia.todosLosMedicamentosGenericosSonBaratos())
   }
   
-  /////////CLIENTES////////
-  test "2.a. Dado un cliente, saber si es solvente."{
+  //////////------CLIENTES------//////////
+  test "1.a. Dado un cliente, saber si es solvente."{
     assert.that(farmacia.clienteSolvente(clienteCheto))
     assert.notThat(farmacia.clienteSolvente(clienteJubiladoMinima))
 
   }
-    test "2.b. De un cliente se quiere saber con qué medios de pago se maneja."{
+    test "1.b. De un cliente se quiere saber con qué medios de pago se maneja."{
     assert.equals([efectivo3,debito3,credito3],farmacia.modosDePago(clienteCheto))
   }
-    test "2.c. Saber si un cliente tiene asociado al menos un medio de pago electrónico."{
+    test "1.c. Saber si un cliente tiene asociado al menos un medio de pago electrónico."{
       assert.that(clienteCheto.tieneMedioElectronico())
-      assert.notThat(clienteJubiladoComun.tieneMedioElectronico())
+      assert.notThat(clienteJubiladoMinima.tieneMedioElectronico())
   }
-    test "2.d. De un cliente, cuánto tiene disponible para gastar en sus medios de pago."{
+    test "1.d. De un cliente, cuánto tiene disponible para gastar en sus medios de pago."{
       assert.equals(91000000,farmacia.cuantoTieneCliente(clienteCheto))
   }
-    test "2.e. Para un cliente, si su cobertura es aceptada por la farmacia"{
+    test "1.e. Para un cliente, si su cobertura es aceptada por la farmacia"{
       assert.that(farmacia.aceptaPrepagaCliente(clienteCheto))
-    //TODO
   }
-    test "2.f. De un cliente, si su cobertura es conveniente"{
-    //TODO
+    test "1.f. De un cliente, si su cobertura es conveniente"{
+      assert.that(farmacia.aceptaPrepagaCliente(clienteCheto))
+      assert.notThat(farmacia.aceptaPrepagaCliente(clienteRustico))
   }
-    test "2.g. Consultar si un cliente, es moderno."{
+    test "1.g. Consultar si un cliente, es moderno."{
       assert.that(farmacia.clienteModerno(clienteCheto))
+      assert.notThat(farmacia.clienteModerno(clienteJubiladoMinima))
   }
 
-  /////////MEDICAMENTOS////////
+  //////////------MEDICAMENTOS------//////////
     test "2.a. Saber si un medicamento está en oferta."{
-      assert.that(farmacia.medicamentoEnOferta(medicamentoPotente))
+      assert.notThat(farmacia.medicamentoEnOferta(medicamentoPotente))
+      assert.that(farmacia.medicamentoEnOferta(medicamentoComun2))
+
   }
     test "2.b. Saber si un medicamento es genérico."{
       assert.notThat(farmacia.medicamentoEsGenerico(medicamentoPotente))
+      assert.that(farmacia.medicamentoEsGenerico(medicamentoComun2))
   }
     test "2.c. Saber si es barato."{
       assert.notThat(farmacia.medicamentoEsBarato(medicamentoPotente))
+      assert.that(farmacia.medicamentoEsGenerico(medicamentoComun2))
 
   }
     test "2.d. Cuanto sale el remedio? (no considerar descuentos)"{
@@ -126,18 +145,59 @@ describe " Parcial - Farmacia"{
       assert.equals(90000, medicamentoPotente.precio())
     
   }
-    test "2.a. Dada una Obra Social, hacer que sea aceptada por la farmacia"{
-    
+    test "2.f. Que descuentos (suma) tiene un remedio, para un cliente?"{
+      assert.equals(6250,farmacia.calculoDescuentoDeMedicamento(clienteJubiladoComun, medicamentoLibre))
+      assert.equals(5000,farmacia.calculoDescuentoDeMedicamento(clienteCheto, medicamentoComun))
+  }
+    test "2.g. Dados un cliente y un remedio (o producto de farmacia), ¿lo puede comprar? (no evaluar si le alcanza la plata)"{
+      assert.equals(18750,farmacia.calculoDeVentaDeMedicamento(clienteJubiladoComun, medicamentoLibre))
+      assert.equals(45000,farmacia.calculoDeVentaDeMedicamento(clienteCheto, medicamentoComun))
   }
 
-/////////OBRAS COSICALES/////
+  //////////------OBRAS SOCIALES------//////////
     test "3.a. Dada una Obra Social, hacer que sea aceptada por la farmacia"{
-      assert.that(farmacia.prepagaAceptada(osde))
+      farmacia.aceptarPrepaga(omint)
+      assert.that(farmacia.prepagaAceptada(omint))
   }
-  test "3.a.b. Dada una Obra Social, que ya no sea más aceptada"{
+  test "3.b. Dada una Obra Social, que ya no sea más aceptada"{
       farmacia.quitarPrepaga(osde)
       assert.notThat(farmacia.prepagaAceptada(osde))
 
   }
+  test "3.c. Dada una Obra Social, consultar si es aceptada"{
+      assert.that(farmacia.prepagaAceptada(osde))
+  }
+  test "3.d. Dada una Obra Social, consultar si es conveniente"{
+      assert.that(farmacia.prepagaClienteConveniente(clienteCheto))
+  }
+  test "3.e.La farmacia tiene una forma de -masivamente- aceptar las obras sociales de todos los clientes (un método para hacerlo, justamente). Este método hace que si un cliente tiene la Obra Social X (y así con todos los clientes), será aceptada de acá en más (si mas tarde quisieramos que deje de ser aceptada, usamos la manera definida para hacerlo, ver punto 3.b)"{
+    farmacia.aceptarTodasLasPrepagasDeLosClientes()
+    assert.equals(#{osde,omint,pami},farmacia.prepagasAceptadas())
+  }
 
+    //////////------MEDICAMENTOS SEGUNDA------//////////
+
+  test "3.a.Sea un producto y un cliente, se le ofrece oferta? (recordar que el cliente debe recibir ofertas, y ademas, el producto tiene que estar en oferta simultáneamente)"{
+    /*No se si comprendí bien la pregunta, pero en la ejercitación se consulta en el metodo "method condicionDeVenta(cliente)" si el cliente tiene alguna cuestión con la oferta.
+    Siendo el único que tiene alguna limitación, el tipo de cliente "Cheto". 
+    En los puntos 2.f y 2.g podemos ver como hay quienes reciben bonificaciones.
+    Abajo intento realizar la venta de un medicamento en oferta al clienteCheto pero se manifiesta el error de no poder.
+*/
+     assert.throwsException({farmacia.calculoDeVentaDeMedicamento(clienteCheto, medicamentoComun2)})
+  }
+
+  test "3.b.Sea un producto y un cliente, que suma de descuentos obtiene? (no acumulativo, punto 3, sólo explicar o comentar, no cambie su programacion)"{
+    //Esto está planteado en el punto 2.f. Sino es esa la respuesta, no lo entendí muy bien.
+  }*/
 }
+
+/*Segunda etapa: Ofertas
+  Si bien esto en la ejercitación, solo dejé el método pero la suma la comenté para que no interfiera en el código.
+  Es funcional.
+
+/*PUNTO ADICIONAL Tercera etapa: los descuentos ya no son acumulativos
+
+  En esta parte entiendo que apuntan a hacer una coleccion con los descuentos y tomar el maximo.
+  Lo que haría sería guardar uno por uno los importes o porcentajes, todo dependería de la practicidad del código, y con el .max() elegiría cuál sería mi descuento a tener
+  en cuenta para la mejor bonificación posible.
+  */

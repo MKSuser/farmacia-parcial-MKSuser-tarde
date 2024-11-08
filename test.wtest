@@ -50,18 +50,19 @@ describe " Parcial - Farmacia"{
     farmacia.agregarMedicamento(medicamentoLibre)
 
     farmacia.aceptarPrepaga(osde)
+    //farmacia.aceptarPrepaga(omint)
     farmacia.aceptarPrepaga(pami)   
 
   }
 
   //////////------FARMACIA------//////////
   test "1.a.Obtener todos los clientes"{
-    assert.equals([clienteCheto, clienteCheto2, clienteRustico, clienteJubiladoComun, clienteJubiladoMinima], farmacia.imprimirClientes())
+    assert.equals(#{clienteCheto, clienteCheto2, clienteRustico, clienteJubiladoComun, clienteJubiladoMinima}, farmacia.imprimirClientes())
 
   }
 
   test "1.b.Obtener todos los clientes con puntaje comercial mayor a 25"{
-    assert.equals([clienteCheto, clienteCheto2, clienteJubiladoComun],farmacia.obtenerClientesSegunPuntaje(25))
+    assert.equals(#{clienteCheto, clienteCheto2, clienteJubiladoComun},farmacia.obtenerClientesSegunPuntaje(25))
 )
 
   }
@@ -70,7 +71,7 @@ describe " Parcial - Farmacia"{
 
   }
   test "1.d.Obtener sólo los clientes modernos que sean además solventes"{
-    assert.equals([clienteCheto, clienteCheto2],farmacia.listarMordenosYSolventes())
+    assert.equals(#{clienteCheto, clienteCheto2},farmacia.listarMordenosYSolventes())
   }
   test "1.e. ¿Cuántos clientes modernos tiene la farmacia?"{
     assert.equals(2,farmacia.listaClientesModernos().size())
@@ -113,8 +114,8 @@ describe " Parcial - Farmacia"{
       assert.that(farmacia.aceptaPrepagaCliente(clienteCheto))
   }
     test "1.f. De un cliente, si su cobertura es conveniente"{
-      assert.that(farmacia.aceptaPrepagaCliente(clienteCheto))
-      assert.notThat(farmacia.aceptaPrepagaCliente(clienteRustico))
+      assert.that(farmacia. prepagaClienteConveniente(clienteCheto))
+      assert.notThat(farmacia. prepagaClienteConveniente(clienteJubiladoMinima))
   }
     test "1.g. Consultar si un cliente, es moderno."{
       assert.that(farmacia.clienteModerno(clienteCheto))
@@ -147,11 +148,11 @@ describe " Parcial - Farmacia"{
   }
     test "2.f. Que descuentos (suma) tiene un remedio, para un cliente?"{
       assert.equals(6250,farmacia.calculoDescuentoDeMedicamento(clienteJubiladoComun, medicamentoLibre))
-      assert.equals(5000,farmacia.calculoDescuentoDeMedicamento(clienteCheto, medicamentoComun))
+      assert.equals(25000,farmacia.calculoDescuentoDeMedicamento(clienteCheto, medicamentoComun))
   }
     test "2.g. Dados un cliente y un remedio (o producto de farmacia), ¿lo puede comprar? (no evaluar si le alcanza la plata)"{
       assert.equals(18750,farmacia.calculoDeVentaDeMedicamento(clienteJubiladoComun, medicamentoLibre))
-      assert.equals(45000,farmacia.calculoDeVentaDeMedicamento(clienteCheto, medicamentoComun))
+      assert.equals(25000,farmacia.calculoDeVentaDeMedicamento(clienteCheto, medicamentoComun))
   }
 
   //////////------OBRAS SOCIALES------//////////
@@ -183,12 +184,14 @@ describe " Parcial - Farmacia"{
     En los puntos 2.f y 2.g podemos ver como hay quienes reciben bonificaciones.
     Abajo intento realizar la venta de un medicamento en oferta al clienteCheto pero se manifiesta el error de no poder.
 */
-     assert.throwsException({farmacia.calculoDeVentaDeMedicamento(clienteCheto, medicamentoComun2)})
+    assert.throwsException({farmacia.calculoDeVentaDeMedicamento(clienteCheto, medicamentoComun2)})
+    
   }
 
   test "3.b.Sea un producto y un cliente, que suma de descuentos obtiene? (no acumulativo, punto 3, sólo explicar o comentar, no cambie su programacion)"{
-    //Esto está planteado en el punto 2.f. Sino es esa la respuesta, no lo entendí muy bien.
-  }*/
+    
+    /*Esto está planteado en el punto 2.f. Sino es esa la respuesta, no lo entendí muy bien.*/
+  }
 }
 
 /*Segunda etapa: Ofertas

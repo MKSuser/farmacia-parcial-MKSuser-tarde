@@ -204,30 +204,7 @@ class Medicamento{
 	method nuevoPrecio(importe){
 		precio = importe
 	}
-/*
 
-
-	method puedeVenderseleA(cliente){
-		if (cliente.aceptaOfertas() && oferta){
-			return true
-		}else if ((not cliente.aceptaOfertas()) && (not oferta)) {
-			return true
-		} else return true
-	}
-
-
-	method ventaConOSinDescuento(cliente){ 
-		if (cliente.tieneMedioElectronico()){
-			return precio * 0.9
-		}else return precio
-	}
-
-	method procedemosALaVenta(cliente){
-		if (self.puedeVenderseleA(cliente)){
-			self.ventaConOSinDescuento(cliente)
-		} //else self.error ("No puede vendersele a cliente")
-	}
-	*/
 }
 
 class Potente inherits Medicamento(
@@ -245,6 +222,7 @@ class Potente inherits Medicamento(
 		return farmacia.clienteSolvente(cliente)
 	}
 
+	//Como no tiene descuentos, lo multi por 0, para anularlo
 	override method sumaDescuentos(cliente){
 		return super(cliente) * 0
 	}
@@ -256,11 +234,7 @@ class Potente inherits Medicamento(
 		
 	}
 
-/*
-	override method puedeVenderseleA(cliente){
-		return farmacia.clienteSolvente(cliente)
-	}
-	*/
+
 
 }
 class Comun inherits Medicamento(

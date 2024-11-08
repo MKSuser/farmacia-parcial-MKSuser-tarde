@@ -1,4 +1,4 @@
-# farmacia-parcial-MKSuser-tarde
+# farmacia-parcial-MKSuser-tardePeroSeguro
 
 No alcance a terminar el parcial original. 
 Me quedé medio enojado por no poder llegar al tiempo asíque intenté terminarlo en casa ni bien llegué.

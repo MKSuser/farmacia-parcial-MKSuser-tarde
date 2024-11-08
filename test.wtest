@@ -1,0 +1,143 @@
+import farmacia.*
+
+describe " Parcial - Farmacia"{
+
+  const efectivo = new Efectivo(importe = 10000)
+  const debito = new Debito(importe = 400000)
+  const credito = new Credito(importe = 500000)
+
+  const efectivo1 = new Efectivo(importe = 1000)
+  const debito1 = new Debito(importe = 40000)
+  const credito1 = new Credito(importe = 50000)
+
+  const efectivo2 = new Efectivo(importe = 100000)
+  const debito2 = new Debito(importe = 4000000)
+  const credito2 = new Credito(importe = 5000000)
+
+  const efectivo3 = new Efectivo(importe = 1000000)
+  const debito3 = new Debito(importe = 40000000)
+  const credito3 = new Credito(importe = 50000000)
+
+  const clienteCheto = new Cheto(nombre = "Jacinto", prepagaObraSocial = osde, edad = 30,mediosDePago=[efectivo3,debito3,credito3])
+  const clienteRustico = new Rustico(nombre = "Pipistrelo",prepagaObraSocial = osde,edad = 35,mediosDePago=[efectivo2,debito2,credito2])
+  const clienteJubiladoComun = new JubiladoComun(nombre = "Roque Fort", prepagaObraSocial = pami ,edad = 70,mediosDePago=[efectivo])
+  const clienteJubiladoMinima = new JubiladoMinima(nombre = "Chinchu Lancha",prepagaObraSocial = pami , edad = 72,mediosDePago=[efectivo1])
+
+  const medicamentoPotente = new Potente(precio = 100000, nombre = "Pastillita", oferta = true)
+  const medicamentoComun = new Comun(precio = 50000, nombre = "Cosito", oferta = false)
+  const medicamentoLibre = new Libre(precio = 10000, nombre = "DelCoso", oferta = true , generico = true)
+
+  method initialize(){
+
+    farmacia.agregarCliente(clienteCheto)
+    farmacia.agregarCliente(clienteRustico)
+    farmacia.agregarCliente(clienteJubiladoComun)
+    farmacia.agregarCliente(clienteJubiladoMinima)
+    
+    farmacia.agregarMedicamento(medicamentoPotente)
+    farmacia.agregarMedicamento(medicamentoComun)
+    farmacia.agregarMedicamento(medicamentoLibre)
+
+  }
+
+  test "1.a.Obtener todos los clientes"{
+    assert.equals([clienteCheto,clienteRustico,clienteJubiladoComun,clienteJubiladoMinima], farmacia.imprimirClientes())
+
+  }
+
+  test "1.b.Obtener todos los clientes con puntaje comercial mayor a 25"{
+    assert.equals([clienteCheto,clienteJubiladoComun],farmacia.obtenerClientesSegunPuntaje(25))
+)
+
+  }
+  test "1.c. Promedio de edad de los clientes modernos"{
+    assert.equals(32.5,farmacia.obtenerPromedioEdad())
+
+  }
+  test "1.d.Obtener sólo los clientes modernos que sean además solventes"{
+    assert.equals([clienteCheto],farmacia.listarMordenosYSolventes())
+  }
+  test "1.e. ¿Cuántos clientes modernos tiene la farmacia?"{
+    assert.equals(2,farmacia.listaClientesModernos().size())  
+
+
+  }
+  test "1.f¿Cuáles de los clientes son solventes y modernos? Pero ahora queremos sus nombres."{
+    assert.equals(["Jacinto"], farmacia.nombresDeNodernosYSolventes())
+  }
+  test "1.g.Consultar nombres de todos remedios (productos)"{
+    assert.equals([medicamentoPotente, medicamentoComun, medicamentoLibre],farmacia.medicamentos())
+
+  }
+  test "1.h.h. Obtener todos los medicamentos genéricos"{
+    assert.equals([medicamentoLibre],farmacia.medicamentosGenericos())
+  }
+  test "1.i.Obtener todos los medicamentos de venta libre y en oferta"{
+    assert.equals([medicamentoLibre], farmacia.medicamentosEnOfertaYVentaLibre())
+  }
+  test "1.j.Saber si todos los medicamentos genéricos son al mismo tiempo baratos, le entró la duda al farmaceútico."{
+    assert.that(farmacia.todosLosMedicamentosGenericosSonBaratos())
+  }
+  
+  /////////CLIENTES////////
+  test "2.a. Dado un cliente, saber si es solvente."{
+    assert.that(farmacia.clienteSolvente(clienteCheto))
+    assert.notThat(farmacia.clienteSolvente(clienteJubiladoMinima))
+
+  }
+    test "2.b. De un cliente se quiere saber con qué medios de pago se maneja."{
+    assert.equals([efectivo3,debito3,credito3],farmacia.modosDePago(clienteCheto))
+  }
+    test "2.c. Saber si un cliente tiene asociado al menos un medio de pago electrónico."{
+      assert.that(clienteCheto.tieneMedioElectronico())
+      assert.notThat(clienteJubiladoComun.tieneMedioElectronico())
+  }
+    test "2.d. De un cliente, cuánto tiene disponible para gastar en sus medios de pago."{
+      assert.equals(91000000,farmacia.cuantoTieneCliente(clienteCheto))
+  }
+    test "2.e. Para un cliente, si su cobertura es aceptada por la farmacia"{
+      assert.that(farmacia.aceptaPrepagaCliente(clienteCheto))
+    //TODO
+  }
+    test "2.f. De un cliente, si su cobertura es conveniente"{
+    //TODO
+  }
+    test "2.g. Consultar si un cliente, es moderno."{
+      assert.that(farmacia.clienteModerno(clienteCheto))
+  }
+
+  /////////MEDICAMENTOS////////
+    test "2.a. Saber si un medicamento está en oferta."{
+      assert.that(farmacia.medicamentoEnOferta(medicamentoPotente))
+  }
+    test "2.b. Saber si un medicamento es genérico."{
+      assert.notThat(farmacia.medicamentoEsGenerico(medicamentoPotente))
+  }
+    test "2.c. Saber si es barato."{
+      assert.notThat(farmacia.medicamentoEsBarato(medicamentoPotente))
+
+  }
+    test "2.d. Cuanto sale el remedio? (no considerar descuentos)"{
+      assert.equals(100000, farmacia.cuantoSaleSinDescuento(medicamentoPotente))
+  }
+    test "2.e. Cambiar el precio de un remedio."{
+      farmacia.cambiarPrecioMedicamento(medicamentoPotente, 90000)
+
+      assert.equals(90000, medicamentoPotente.precio())
+    
+  }
+    test "2.a. Dada una Obra Social, hacer que sea aceptada por la farmacia"{
+    
+  }
+
+/////////OBRAS COSICALES/////
+    test "3.a. Dada una Obra Social, hacer que sea aceptada por la farmacia"{
+      assert.that(farmacia.prepagaAceptada(osde))
+  }
+  test "3.a.b. Dada una Obra Social, que ya no sea más aceptada"{
+      farmacia.quitarPrepaga(osde)
+      assert.notThat(farmacia.prepagaAceptada(osde))
+
+  }
+
+}
